@@ -1,12 +1,21 @@
 <?php
-require __DIR__.'/../vendor/autoload.php';
-$app = require_once __DIR__.'/../bootstrap/app.php';
+// api/index.php
 
+// Pastikan library vendor terload
+require __DIR__ . '/../vendor/autoload.php';
+
+// Bootstrap Laravel
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+// Jalankan Kernel
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+
 $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
-$response->headers->set('Content-Type', 'text/html');
+// KIRIM RESPON SEBAGAI HTML
+header('Content-Type: text/html');
 $response->send();
+
 $kernel->terminate($request, $response);
