@@ -1,26 +1,32 @@
 <?php
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
-// Pastikan waktu mulai didefinisikan
+// 1. Definisikan waktu mulai aplikasi
 define('LARAVEL_START', microtime(true));
 
-// Menggunakan autoloader dari composer
-require __DIR__.'/../vendor/autoload.php';
+// 2. Pastikan file autoloader tersedia
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require __DIR__ . '/../vendor/autoload.php';
+} else {
+    die('Autoloader tidak ditemukan. Pastikan folder vendor sudah ter-upload.');
+}
 
-// Bootstrap Laravel
-/** @var Application $app */
-$app = require_once __DIR__.'/../bootstrap/app.php';
+// 3. Bootstrap aplikasi
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-// Menangani request
+// 4. Buat kernel HTTP
+$kernel = $app->make(Kernel::class);
+
+// 5. Tangkap request
 $request = Request::capture();
 
-// Penting untuk Vercel: Laravel perlu tahu jika berjalan di balik proxy
-$app->prepareRequestForFramework($request);
+// 6. Jalankan request melalui kernel
+$response = $kernel->handle($request);
 
-$response = $app->handle($request);
-
+// 7. Kirim respons ke browser
 $response->send();
 
-$app->terminate($request, $response);
+// 8. Terminasi proses (penting untuk serverless agar memori dibebaskan)
+$kernel->terminate($request, $response);
